@@ -116,6 +116,18 @@ Example based on `sample_logs/diverging_run.json` (6 steps, divergence detected 
 }
 ```
 
+## Supported anomaly types
+
+The `anomaly_type` field in each anomaly object will be one of:
+
+| Value | Severity | Description |
+|---|---|---|
+| `loss_divergence` | critical | train_loss increased >200% within a 3-step window |
+| `vanishing_gradients` | warning | gradient_norm < 0.001 for 5+ consecutive steps |
+| `gpu_underutilization` | warning | gpu_utilization_percent < 50 for 5+ consecutive steps |
+| `oom_risk` | critical | memory_used_gb / memory_total_gb ≥ 0.90 at any step |
+| `training_stall` | warning | val_loss changed by < 0.001 for 5+ consecutive steps |
+
 ## Error Handling
 
 Future API versions should return structured errors:

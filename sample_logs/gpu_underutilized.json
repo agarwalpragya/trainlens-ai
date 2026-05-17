@@ -1,0 +1,96 @@
+{
+  "run_name": "resnet50_gpu_underutilized_demo",
+  "metrics": [
+    {
+      "step": 100,
+      "train_loss": 0.90,
+      "val_loss": 0.95,
+      "gpu_utilization_percent": 78,
+      "memory_used_gb": 9.1,
+      "memory_total_gb": 24,
+      "gradient_norm": 1.1,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "throughput_samples_per_sec": 520,
+      "timestamp": "2026-05-17T10:00:00Z"
+    },
+    {
+      "step": 200,
+      "train_loss": 0.80,
+      "val_loss": 0.86,
+      "gpu_utilization_percent": 75,
+      "memory_used_gb": 9.2,
+      "memory_total_gb": 24,
+      "gradient_norm": 1.0,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "throughput_samples_per_sec": 518,
+      "timestamp": "2026-05-17T10:01:00Z"
+    },
+    {
+      "step": 300,
+      "train_loss": 0.71,
+      "val_loss": 0.78,
+      "gpu_utilization_percent": 30,
+      "memory_used_gb": 9.3,
+      "memory_total_gb": 24,
+      "gradient_norm": 0.9,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "throughput_samples_per_sec": 210,
+      "timestamp": "2026-05-17T10:02:00Z"
+    },
+    {
+      "step": 400,
+      "train_loss": 0.64,
+      "val_loss": 0.71,
+      "gpu_utilization_percent": 35,
+      "memory_used_gb": 9.3,
+      "memory_total_gb": 24,
+      "gradient_norm": 0.8,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "throughput_samples_per_sec": 215,
+      "timestamp": "2026-05-17T10:03:00Z"
+    },
+    {
+      "step": 500,
+      "train_loss": 0.58,
+      "val_loss": 0.65,
+      "gpu_utilization_percent": 25,
+      "memory_used_gb": 9.4,
+      "memory_total_gb": 24,
+      "gradient_norm": 0.7,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "throughput_samples_per_sec": 200,
+      "timestamp": "2026-05-17T10:04:00Z"
+    },
+    {
+      "step": 600,
+      "train_loss": 0.53,
+      "val_loss": 0.60,
+      "gpu_utilization_percent": 40,
+      "memory_used_gb": 9.4,
+      "memory_total_gb": 24,
+      "gradient_norm": 0.7,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "throughput_samples_per_sec": 212,
+      "timestamp": "2026-05-17T10:05:00Z"
+    },
+    {
+      "step": 700,
+      "train_loss": 0.49,
+      "val_loss": 0.56,
+      "gpu_utilization_percent": 20,
+      "memory_used_gb": 9.5,
+      "memory_total_gb": 24,
+      "gradient_norm": 0.6,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "throughput_samples_per_sec": 195,
+      "timestamp": "2026-05-17T10:06:00Z"
+    }
+  ]
+}

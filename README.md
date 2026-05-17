@@ -2,7 +2,7 @@
 
 AI-powered ML training run failure diagnosis platform.
 
-TrainLens parses ML training logs and metrics, detects failure patterns such as loss divergence and exploding gradients, and returns structured root-cause analysis with remediation steps.
+TrainLens parses ML training logs and metrics, detects failure patterns including loss divergence, vanishing gradients, GPU underutilization, OOM risk, and training stalls, and returns structured root-cause analysis with remediation steps.
 
 ## Stack
 
