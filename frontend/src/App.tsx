@@ -5,13 +5,17 @@ import { SampleRunSelector } from './components/SampleRunSelector';
 import { AnalysisSummary } from './components/AnalysisSummary';
 import { AnomalyCard } from './components/AnomalyCard';
 import { DiagnosisPanel } from './components/DiagnosisPanel';
-import type { AnalyzeResponse } from './types/analysis';
+import { LossCurveChart } from './components/LossCurveChart';
+import type { AnalyzeResponse, Anomaly } from './types/analysis';
 
 export default function App() {
   const [selectedKey, setSelectedKey] = useState<string>(sampleRuns[0].key);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedAnomaly, setSelectedAnomaly] = useState<Anomaly | null>(null);
+
+  const currentRun = sampleRuns.find((r) => r.key === selectedKey) ?? sampleRuns[0];
 
   async function handleAnalyze() {
     const run = sampleRuns.find((r) => r.key === selectedKey);
@@ -20,6 +24,7 @@ export default function App() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setSelectedAnomaly(null);
 
     try {
       const data = await analyzeRun(run.payload);
@@ -47,6 +52,7 @@ export default function App() {
             setSelectedKey(key);
             setResult(null);
             setError(null);
+            setSelectedAnomaly(null);
           }}
           onAnalyze={handleAnalyze}
           loading={loading}
@@ -70,8 +76,24 @@ export default function App() {
           <>
             <AnalysisSummary response={result} />
 
+            <LossCurveChart
+              metrics={currentRun.payload.metrics}
+              anomalies={result.anomalies}
+              selectedAnomaly={selectedAnomaly}
+              onAnomalyClick={setSelectedAnomaly}
+            />
+
             {result.anomalies.map((anomaly) => (
-              <AnomalyCard key={anomaly.anomaly_type} anomaly={anomaly} />
+              <AnomalyCard
+                key={anomaly.anomaly_type}
+                anomaly={anomaly}
+                isSelected={selectedAnomaly?.anomaly_type === anomaly.anomaly_type}
+                onClick={() =>
+                  setSelectedAnomaly((prev) =>
+                    prev?.anomaly_type === anomaly.anomaly_type ? null : anomaly,
+                  )
+                }
+              />
             ))}
 
             <DiagnosisPanel diagnosis={result.diagnosis} />

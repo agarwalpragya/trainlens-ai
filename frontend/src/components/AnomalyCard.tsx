@@ -2,6 +2,8 @@ import type { Anomaly } from '../types/analysis';
 
 interface Props {
   anomaly: Anomaly;
+  isSelected?: boolean;
+  onClick?: () => void;
 }
 
 const ANOMALY_LABELS: Record<string, string> = {
@@ -25,12 +27,16 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
-export function AnomalyCard({ anomaly }: Props) {
+export function AnomalyCard({ anomaly, isSelected, onClick }: Props) {
   const { anomaly_type, detected_at_step, severity, confidence, relevant_metrics } = anomaly;
   const label = ANOMALY_LABELS[anomaly_type] ?? anomaly_type;
 
   return (
-    <div className={`anomaly-card ${severity}`}>
+    <div
+      className={`anomaly-card ${severity}${isSelected ? ' selected' : ''}`}
+      onClick={onClick}
+      style={onClick ? { cursor: 'pointer' } : undefined}
+    >
       <div className="anomaly-header">
         <span className="anomaly-type">{label}</span>
         <div className="anomaly-meta">
