@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.models import AnalyzeRequest
+from app.models import AnalyzeRequest, AnalyzeResponse, RunSummary
 from app.anomaly_detector import detect_anomalies
 from app.diagnosis import generate_mock_diagnosis
 
@@ -29,17 +29,17 @@ def health_check():
     }
 
 
-@app.post("/api/analyze")
-def analyze_training_run(payload: AnalyzeRequest):
+@app.post("/api/analyze", response_model=AnalyzeResponse)
+def analyze_training_run(payload: AnalyzeRequest) -> AnalyzeResponse:
     anomalies = detect_anomalies(payload.metrics)
     diagnosis = generate_mock_diagnosis(anomalies)
 
-    return {
-        "run_name": payload.run_name,
-        "summary": {
-            "total_steps": len(payload.metrics),
-            "anomalies_detected": len(anomalies),
-        },
-        "anomalies": anomalies,
-        "diagnosis": diagnosis,
-    }
+    return AnalyzeResponse(
+        run_name=payload.run_name,
+        summary=RunSummary(
+            total_steps=len(payload.metrics),
+            anomalies_detected=len(anomalies),
+        ),
+        anomalies=anomalies,
+        diagnosis=diagnosis,
+    )

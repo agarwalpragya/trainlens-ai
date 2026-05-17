@@ -34,3 +34,4 @@ Represents one training step.
   "throughput_samples_per_sec": 522,
   "timestamp": "2026-05-17T10:04:00Z"
 }
+```

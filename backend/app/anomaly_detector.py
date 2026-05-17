@@ -1,8 +1,8 @@
-from typing import List, Dict, Any
-from app.models import TrainingMetric
+from typing import List, Dict, Any, Optional
+from app.models import TrainingMetric, Anomaly
 
 
-def detect_anomalies(metrics: List[TrainingMetric]) -> List[Dict[str, Any]]:
+def detect_anomalies(metrics: List[TrainingMetric]) -> List[Anomaly]:
     """
     Detects training anomalies from metric history.
 
@@ -16,7 +16,10 @@ def detect_anomalies(metrics: List[TrainingMetric]) -> List[Dict[str, Any]]:
     - training_stall
     """
 
-    anomalies = []
+    # Sort by step so positional lookback comparisons are always correct.
+    metrics = sorted(metrics, key=lambda m: m.step)
+
+    anomalies: List[Anomaly] = []
     loss_divergence = detect_loss_divergence(metrics)
 
     if loss_divergence:
@@ -25,7 +28,7 @@ def detect_anomalies(metrics: List[TrainingMetric]) -> List[Dict[str, Any]]:
     return anomalies
 
 
-def detect_loss_divergence(metrics: List[TrainingMetric]):
+def detect_loss_divergence(metrics: List[TrainingMetric]) -> Optional[Anomaly]:
     """
     Loss divergence rule:
 
@@ -54,12 +57,12 @@ def detect_loss_divergence(metrics: List[TrainingMetric]):
         if increase_percent > 200:
             context_window = build_context_window(metrics, index, window_size=10)
 
-            return {
-                "anomaly_type": "loss_divergence",
-                "detected_at_step": current.step,
-                "severity": "critical",
-                "confidence": 0.91,
-                "relevant_metrics": {
+            return Anomaly(
+                anomaly_type="loss_divergence",
+                detected_at_step=current.step,
+                severity="critical",
+                confidence=0.91,  # fixed mock confidence for MVP
+                relevant_metrics={
                     "previous_step": previous.step,
                     "previous_train_loss": previous.train_loss,
                     "current_step": current.step,
@@ -68,8 +71,8 @@ def detect_loss_divergence(metrics: List[TrainingMetric]):
                     "gradient_norm": current.gradient_norm,
                     "learning_rate": current.learning_rate,
                 },
-                "context_window": context_window,
-            }
+                context_window=context_window,
+            )
 
     return None
 

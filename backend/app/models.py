@@ -28,3 +28,22 @@ class Anomaly(BaseModel):
     confidence: float
     relevant_metrics: Dict[str, Any]
     context_window: List[Dict[str, Any]]
+
+
+class RunSummary(BaseModel):
+    total_steps: int
+    anomalies_detected: int
+
+
+class Diagnosis(BaseModel):
+    headline: str
+    root_cause: str
+    explanation: str
+    remediation_steps: List[str]
+
+
+class AnalyzeResponse(BaseModel):
+    run_name: str
+    summary: RunSummary
+    anomalies: List[Anomaly]
+    diagnosis: Diagnosis

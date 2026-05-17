@@ -68,11 +68,13 @@ It accepts a training log, detects anomalies, and returns:
 
 ### Response Body
 
+Example based on `sample_logs/diverging_run.json` (6 steps, divergence detected at step 500).
+
 ```json
 {
-  "run_name": "diverging_run",
+  "run_name": "resnet50_diverging_loss_demo",
   "summary": {
-    "total_steps": 100,
+    "total_steps": 6,
     "anomalies_detected": 1
   },
   "anomalies": [
@@ -82,20 +84,27 @@ It accepts a training log, detects anomalies, and returns:
       "severity": "critical",
       "confidence": 0.91,
       "relevant_metrics": {
-        "previous_step": 400,
-        "previous_train_loss": 0.48,
+        "previous_step": 200,
+        "previous_train_loss": 0.71,
         "current_step": 500,
         "current_train_loss": 2.35,
-        "increase_percent": 389.58,
+        "increase_percent": 230.99,
         "gradient_norm": 87.4,
         "learning_rate": 0.001
       },
-      "context_window": []
+      "context_window": [
+        {"step": 100, "train_loss": 0.92, "val_loss": 1.04, "gradient_norm": 1.1, "learning_rate": 0.001},
+        {"step": 200, "train_loss": 0.71, "val_loss": 0.91, "gradient_norm": 1.2, "learning_rate": 0.001},
+        {"step": 300, "train_loss": 0.56, "val_loss": 0.82, "gradient_norm": 1.4, "learning_rate": 0.001},
+        {"step": 400, "train_loss": 0.48, "val_loss": 0.77, "gradient_norm": 1.5, "learning_rate": 0.001},
+        {"step": 500, "train_loss": 2.35, "val_loss": 2.91, "gradient_norm": 87.4, "learning_rate": 0.001},
+        {"step": 600, "train_loss": 7.82, "val_loss": 9.21, "gradient_norm": 132.6, "learning_rate": 0.001}
+      ]
     }
   ],
   "diagnosis": {
     "headline": "Training run likely diverged due to unstable optimization.",
-    "root_cause": "Loss increased sharply within a short step window.",
+    "root_cause": "Training loss increased sharply near step 500, which suggests unstable optimization behavior.",
     "explanation": "A sudden loss spike can be caused by an overly high learning rate, exploding gradients, unstable batch data, or numerical instability.",
     "remediation_steps": [
       "Reduce the learning rate and rerun from the last stable checkpoint.",
