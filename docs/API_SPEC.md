@@ -36,21 +36,23 @@ Analyzes a training run and returns detected anomalies with diagnosis.
 
 This is the main MVP endpoint.
 
-It accepts a training log, detects anomalies, and returns:
+It accepts a training log, runs five anomaly detectors, and returns:
 
 - run summary
-- detected anomalies
-- diagnosis
+- detected anomalies (one per anomaly type, at most)
+- diagnosis for the primary anomaly
 - remediation steps
 
 ### Request Body
 
+`run_name` is required. `metrics` must be a non-empty array. Only `step` and `train_loss` are required per metric; all other fields are optional.
+
 ```json
 {
-  "run_name": "diverging_run",
+  "run_name": "resnet50_diverging_loss_demo",
   "metrics": [
     {
-      "step": 1,
+      "step": 100,
       "train_loss": 0.92,
       "val_loss": 1.04,
       "gpu_utilization_percent": 78,
@@ -68,7 +70,9 @@ It accepts a training log, detects anomalies, and returns:
 
 ### Response Body
 
-Example based on `sample_logs/diverging_run.json` (6 steps, divergence detected at step 500).
+Example based on `sample_logs/diverging_run.json` (6 steps, loss divergence detected at step 500).
+
+Each entry in `context_window` contains all `TrainingMetric` fields; optional fields are `null` when not provided in the request.
 
 ```json
 {
@@ -93,12 +97,32 @@ Example based on `sample_logs/diverging_run.json` (6 steps, divergence detected 
         "learning_rate": 0.001
       },
       "context_window": [
-        {"step": 100, "train_loss": 0.92, "val_loss": 1.04, "gradient_norm": 1.1, "learning_rate": 0.001},
-        {"step": 200, "train_loss": 0.71, "val_loss": 0.91, "gradient_norm": 1.2, "learning_rate": 0.001},
-        {"step": 300, "train_loss": 0.56, "val_loss": 0.82, "gradient_norm": 1.4, "learning_rate": 0.001},
-        {"step": 400, "train_loss": 0.48, "val_loss": 0.77, "gradient_norm": 1.5, "learning_rate": 0.001},
-        {"step": 500, "train_loss": 2.35, "val_loss": 2.91, "gradient_norm": 87.4, "learning_rate": 0.001},
-        {"step": 600, "train_loss": 7.82, "val_loss": 9.21, "gradient_norm": 132.6, "learning_rate": 0.001}
+        {
+          "step": 100,
+          "train_loss": 0.92,
+          "val_loss": 1.04,
+          "gpu_utilization_percent": 78,
+          "memory_used_gb": 9.1,
+          "memory_total_gb": 24,
+          "gradient_norm": 1.1,
+          "learning_rate": 0.001,
+          "batch_size": 64,
+          "throughput_samples_per_sec": 520,
+          "timestamp": "2026-05-17T10:00:00Z"
+        },
+        {
+          "step": 500,
+          "train_loss": 2.35,
+          "val_loss": 2.91,
+          "gpu_utilization_percent": 84,
+          "memory_used_gb": 10.2,
+          "memory_total_gb": 24,
+          "gradient_norm": 87.4,
+          "learning_rate": 0.001,
+          "batch_size": 64,
+          "throughput_samples_per_sec": 522,
+          "timestamp": "2026-05-17T10:04:00Z"
+        }
       ]
     }
   ],
@@ -116,17 +140,25 @@ Example based on `sample_logs/diverging_run.json` (6 steps, divergence detected 
 }
 ```
 
+Note: `context_window` is truncated above for readability. The actual response includes all steps within the ±10 step window around the detected anomaly.
+
+---
+
 ## Supported anomaly types
 
 The `anomaly_type` field in each anomaly object will be one of:
 
-| Value | Severity | Description |
+| Value | Severity | Detection rule |
 |---|---|---|
 | `loss_divergence` | critical | train_loss increased >200% within a 3-step window |
 | `vanishing_gradients` | warning | gradient_norm < 0.001 for 5+ consecutive steps |
 | `gpu_underutilization` | warning | gpu_utilization_percent < 50 for 5+ consecutive steps |
 | `oom_risk` | critical | memory_used_gb / memory_total_gb ≥ 0.90 at any step |
 | `training_stall` | warning | val_loss changed by < 0.001 for 5+ consecutive steps |
+
+The `diagnosis` field always reflects the first anomaly in the `anomalies` array.
+
+---
 
 ## Error Handling
 

@@ -9,6 +9,16 @@ TrainLens parses ML training logs and metrics, detects failure patterns includin
 - **Backend:** Python 3.12, FastAPI, Pydantic, uv
 - **Frontend:** React, TypeScript, Vite, D3.js _(Week 2)_
 
+## Detected anomaly types
+
+| Anomaly | Severity |
+|---|---|
+| Loss divergence | critical |
+| Vanishing gradients | warning |
+| GPU underutilization | warning |
+| OOM risk | critical |
+| Training stall | warning |
+
 ## Run the backend
 
 ```bash
@@ -27,13 +37,26 @@ cd backend
 uv run pytest
 ```
 
-## Try it with the sample log
+## Try it with a sample log
+
+Run from the repo root (not from inside `backend/`):
 
 ```bash
 curl -X POST http://localhost:8000/api/analyze \
   -H "Content-Type: application/json" \
   -d @sample_logs/diverging_run.json
 ```
+
+Other sample logs available in `sample_logs/`:
+
+| File | Anomaly triggered |
+|---|---|
+| `diverging_run.json` | loss_divergence |
+| `vanishing_gradients.json` | vanishing_gradients |
+| `gpu_underutilized.json` | gpu_underutilization |
+| `oom_risk.json` | oom_risk |
+| `training_stall.json` | training_stall |
+| `normal_run.json` | none |
 
 ## Docs
 

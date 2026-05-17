@@ -34,13 +34,17 @@ Existing tools are strong at tracking training metrics. TrainLens focuses on the
 
 ### Must Have
 
-- Sample JSON training logs
+- Sample JSON training logs for all anomaly scenarios
 - FastAPI backend
 - Loss divergence detector
-- Mock diagnosis response
+- Vanishing gradients detector
+- GPU underutilization detector
+- OOM risk detector
+- Training stall detector
+- Mock diagnosis response per anomaly type
 - API contract
 - Documentation
-- First GitHub commit
+- Tests
 
 ### Should Have
 
@@ -52,9 +56,6 @@ Existing tools are strong at tracking training metrics. TrainLens focuses on the
 ### Later
 
 - Real Claude/OpenAI diagnosis
-- GPU underutilization detector
-- OOM risk detector
-- Vanishing/exploding gradient detector
 - CSV parser
 - PostgreSQL
 - Kafka streaming
@@ -63,9 +64,18 @@ Existing tools are strong at tracking training metrics. TrainLens focuses on the
 
 ## 6. Success Criteria
 
-Day 1 is successful when:
+### Backend v1 (complete)
 
-- `/api/analyze` accepts a training log.
-- Backend detects at least one loss divergence anomaly.
-- Backend returns a structured anomaly and mocked diagnosis.
-- Code is committed to GitHub.
+- `/api/analyze` accepts a JSON training log.
+- Backend detects five anomaly types: loss divergence, vanishing gradients, GPU underutilization, OOM risk, and training stall.
+- Backend returns structured anomaly data with a context window around each detected step.
+- Backend returns a typed mock diagnosis with remediation steps for each anomaly type.
+- 21 tests pass.
+- All documentation reflects the implemented API and data models.
+
+### Frontend (Week 2)
+
+- User can submit a sample log from a browser.
+- Loss curve renders in a D3 chart.
+- Detected anomaly is marked visually.
+- Diagnosis appears in a panel with remediation steps.

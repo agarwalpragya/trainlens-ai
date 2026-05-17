@@ -50,11 +50,15 @@ Cleaner dependency management and a more modern repo structure.
 
 ### Decision
 
-Detect anomalies statistically before sending context to an LLM.
+Run rule-based detectors over the metric history before sending any context to an LLM. The detectors produce structured `Anomaly` objects, each with a `context_window` of surrounding steps. The diagnosis layer receives this structured output, not raw logs.
 
 ### Reason
 
-LLMs should explain evidence, not randomly inspect raw logs. Pre-processing improves diagnosis quality, makes the system more explainable, and controls token cost.
+LLMs produce better diagnoses when given focused evidence rather than raw logs. Pre-processing provides three specific benefits:
+
+1. **Accuracy** — a detector that checks `gradient_norm < 0.001 for 5+ consecutive steps` is deterministic. An LLM inspecting a raw 10,000-step log may miss it or hallucinate a different failure.
+2. **Explainability** — each `Anomaly` has a typed `detected_at_step`, `severity`, `confidence`, and `relevant_metrics`. These fields can be displayed in the UI without parsing free-form text.
+3. **Token efficiency** — only the `context_window` (up to ±10 surrounding steps) is sent to the LLM, not the full run.
 
 ### Alternatives Considered
 
@@ -63,7 +67,7 @@ LLMs should explain evidence, not randomly inspect raw logs. Pre-processing impr
 
 ### Consequences
 
-The system becomes more reliable and easier to debug.
+The system is more reliable, easier to test, and cheaper to operate. The rule layer and the LLM layer can be developed and evaluated independently.
 
 ---
 
