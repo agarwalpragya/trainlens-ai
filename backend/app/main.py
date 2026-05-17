@@ -1,9 +1,12 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.models import AnalyzeRequest, AnalyzeResponse, RunSummary
 from app.anomaly_detector import detect_anomalies
-from app.diagnosis import generate_mock_diagnosis
+from app.diagnosis import generate_diagnosis
+
+load_dotenv()
 
 app = FastAPI(
     title="TrainLens AI API",
@@ -32,7 +35,7 @@ def health_check():
 @app.post("/api/analyze", response_model=AnalyzeResponse)
 def analyze_training_run(payload: AnalyzeRequest) -> AnalyzeResponse:
     anomalies = detect_anomalies(payload.metrics)
-    diagnosis = generate_mock_diagnosis(anomalies)
+    diagnosis = generate_diagnosis(anomalies)
 
     return AnalyzeResponse(
         run_name=payload.run_name,

@@ -19,4 +19,4 @@ build/
 
 # Editor files
 .vscode/
-.cursor/
+.cursor/backend/.env

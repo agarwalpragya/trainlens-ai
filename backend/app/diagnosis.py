@@ -1,13 +1,33 @@
-from typing import List
+import json
+import logging
+import os
+from typing import Any, Dict, List
+
+from anthropic import Anthropic
 from app.models import Anomaly, Diagnosis
 
+logger = logging.getLogger(__name__)
+
+# Fields forwarded to Claude from each context_window entry.
+# Omitting internal bookkeeping keys (e.g. timestamp) to keep the prompt small.
+_CONTEXT_FIELDS = [
+    "step",
+    "train_loss",
+    "val_loss",
+    "gpu_utilization_percent",
+    "memory_used_gb",
+    "memory_total_gb",
+    "gradient_norm",
+    "learning_rate",
+    "batch_size",
+    "throughput_samples_per_sec",
+]
+
+
+# ── Mock diagnosis ────────────────────────────────────────────────────────────
 
 def generate_mock_diagnosis(anomalies: List[Anomaly]) -> Diagnosis:
-    """
-    Day 1 mock diagnosis.
-
-    Later this will be replaced by Claude/OpenAI diagnosis.
-    """
+    """Rule-based fallback diagnosis. Used when Claude is unavailable."""
 
     if not anomalies:
         return Diagnosis(
@@ -125,3 +145,103 @@ def generate_mock_diagnosis(anomalies: List[Anomaly]) -> Diagnosis:
         explanation="Further analysis is needed.",
         remediation_steps=["Inspect the context window around the detected step."],
     )
+
+
+# ── Claude diagnosis ──────────────────────────────────────────────────────────
+
+def _trim_context_window(context_window: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Strip non-metric keys from context_window entries to keep the prompt compact."""
+    trimmed = []
+    for entry in context_window:
+        row = {k: entry[k] for k in _CONTEXT_FIELDS if k in entry and entry[k] is not None}
+        trimmed.append(row)
+    return trimmed
+
+
+def _build_prompt(anomaly: Anomaly) -> str:
+    trimmed_context = _trim_context_window(anomaly.context_window)
+    return f"""You are analyzing a machine learning training run that produced the following anomaly.
+
+Anomaly:
+- type: {anomaly.anomaly_type}
+- severity: {anomaly.severity}
+- detected_at_step: {anomaly.detected_at_step}
+- confidence: {anomaly.confidence}
+- relevant_metrics: {json.dumps(anomaly.relevant_metrics)}
+
+Context window (steps around the anomaly):
+{json.dumps(trimmed_context, indent=2)}
+
+Instructions:
+- Base your diagnosis ONLY on the metrics provided above. Do not invent unsupported evidence.
+- If the evidence is insufficient to make a confident claim, say so clearly in the explanation.
+- Keep the diagnosis practical and engineer-readable.
+- Return a JSON object with EXACTLY these four keys:
+  - "headline": one-sentence summary of the problem (string)
+  - "root_cause": concise root-cause statement (string)
+  - "explanation": 2–4 sentence technical explanation (string)
+  - "remediation_steps": list of 2–5 actionable steps (array of strings)
+
+Return JSON only. No markdown, no code fences, no extra text."""
+
+
+def generate_claude_diagnosis(anomaly: Anomaly) -> Diagnosis:
+    """
+    Call the Claude API and parse the response into a Diagnosis.
+    Raises on network errors, non-JSON responses, or missing keys.
+    """
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-5")
+
+    client = Anthropic(api_key=api_key)
+    prompt = _build_prompt(anomaly)
+
+    response = client.messages.create(
+        model=model,
+        max_tokens=512,
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    raw = response.content[0].text.strip()
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+        raw = raw.strip()
+    data = json.loads(raw)  # raises json.JSONDecodeError on bad output
+
+    return Diagnosis(
+        headline=data["headline"],
+        root_cause=data["root_cause"],
+        explanation=data["explanation"],
+        remediation_steps=data["remediation_steps"],
+    )
+
+
+# ── Public entry point ────────────────────────────────────────────────────────
+
+def generate_diagnosis(anomalies: List[Anomaly]) -> Diagnosis:
+    """
+    Generate a diagnosis for the detected anomalies.
+
+    Priority:
+      1. No anomalies → stable "no anomaly" response (never calls Claude).
+      2. ANTHROPIC_API_KEY missing → mock diagnosis.
+      3. Claude call succeeds → return Claude diagnosis.
+      4. Claude call fails for any reason → log warning, return mock diagnosis.
+    """
+    if not anomalies:
+        return generate_mock_diagnosis(anomalies)
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return generate_mock_diagnosis(anomalies)
+
+    try:
+        return generate_claude_diagnosis(anomalies[0])
+    except Exception:
+        logger.warning(
+            "Claude diagnosis failed; falling back to mock diagnosis.",
+            exc_info=True,
+        )
+        return generate_mock_diagnosis(anomalies)

@@ -5,6 +5,7 @@ description = "TrainLens AI backend — ML training run failure diagnosis API"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "anthropic>=0.102.0",
     "fastapi>=0.136.1",
     "pydantic>=2.13.4",
     "python-dotenv>=1.2.2",

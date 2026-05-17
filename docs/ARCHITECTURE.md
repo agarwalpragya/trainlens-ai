@@ -9,8 +9,8 @@ The MVP backend is intentionally simple:
 - FastAPI backend
 - Sample JSON logs
 - Rule-based anomaly detector pipeline
-- Mock diagnosis generator
-- React/D3 frontend (Week 2)
+- Claude diagnosis with rule-based mock fallback
+- React/D3 frontend
 
 ## 2. High-Level Flow
 
@@ -37,8 +37,8 @@ flowchart TD
     C --> G[GPU Underutilization Detector]
     C --> H[OOM Risk Detector]
     C --> I[Training Stall Detector]
-    D --> J[Mock Diagnosis per Anomaly Type]
-    D --> K[Future: Claude Diagnosis]
+    D --> J[Claude Diagnosis]
+    D --> K[Mock Fallback if Claude unavailable]
 ```
 
 ## 4. Anomaly Detector Pipeline
@@ -65,7 +65,7 @@ Each detector:
 - Use uv for modern Python dependency management.
 - Run rule-based detection before LLM diagnosis to extract structured evidence first.
 - Start with JSON logs instead of real-time streaming.
-- Mock diagnosis before integrating Claude.
+- Claude diagnosis with a rule-based mock fallback (active when `ANTHROPIC_API_KEY` is unset or Claude fails).
 - Delay database until the core loop works.
 
 ## 6. Future Architecture

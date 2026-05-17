@@ -34,25 +34,27 @@ Goal: prove that TrainLens can analyze a training log and return a useful diagno
 
 ## Week 2 — Dashboard and Visualization
 
+Status: **complete**
+
 Goal: make the project visually demo-ready.
 
-### Tasks
+### Completed
 
-- [ ] Create React + TypeScript frontend using Vite
-- [ ] Add API client for backend
-- [ ] Add sample log analysis button
-- [ ] Build D3 loss curve chart
-- [ ] Add anomaly marker on failure step
-- [ ] Build diagnosis panel
-- [ ] Build remediation checklist
-- [ ] Add loading and error states
+- [x] Create React + TypeScript frontend using Vite
+- [x] Add API client for backend
+- [x] Add sample log analysis button
+- [x] Build D3 loss curve chart
+- [x] Add anomaly marker on failure step
+- [x] Build diagnosis panel
+- [x] Build remediation checklist
+- [x] Add loading and error states
 
 ### Definition of Done
 
-- [ ] User can click a button to analyze a sample log
-- [ ] Loss curve renders in the UI
-- [ ] Failure point is marked visually
-- [ ] Diagnosis appears in a panel
+- [x] User can click a button to analyze a sample log
+- [x] Loss curve renders in the UI
+- [x] Failure point is marked visually
+- [x] Diagnosis appears in a panel
 - [ ] Screenshot is ready for README and LinkedIn
 
 ---
@@ -63,7 +65,7 @@ Goal: turn the MVP into a public portfolio project.
 
 ### Tasks
 
-- [ ] Replace mocked diagnosis with Claude/OpenAI diagnosis
+- [x] Replace mocked diagnosis with Claude-powered diagnosis and deterministic fallback
 - [ ] Add postmortem markdown export
 - [ ] Improve README with screenshots
 - [ ] Record demo GIF
