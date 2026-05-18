@@ -44,3 +44,12 @@ export interface AnalyzeResponse {
   anomalies: Anomaly[];
   diagnosis: Diagnosis;
 }
+
+export interface AskRequest {
+  question: string;
+  analysis: AnalyzeResponse;
+}
+
+export interface AskResponse {
+  answer: string;
+}

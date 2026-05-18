@@ -521,3 +521,126 @@ body {
   background: var(--success);
   flex-shrink: 0;
 }
+
+/* ─── Ask TrainLens card ─────────────────────────────────────────────────────── */
+.ask-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.ask-chip {
+  padding: 5px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.ask-chip:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.ask-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ask-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ask-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  background: var(--surface);
+  min-width: 0;
+}
+
+.ask-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+}
+
+.ask-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-ask {
+  padding: 9px 22px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-ask:hover:not(:disabled) { background: var(--accent-hover); }
+
+.btn-ask:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ask-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+.ask-error {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: var(--critical-bg);
+  border: 1px solid var(--critical-border);
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  color: var(--critical);
+}
+
+.ask-answer {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-radius: calc(var(--radius) - 2px);
+  border-left: 3px solid var(--accent);
+}
+
+.ask-answer-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.ask-answer-text {
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

@@ -2,9 +2,10 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.models import AnalyzeRequest, AnalyzeResponse, RunSummary
+from app.models import AnalyzeRequest, AnalyzeResponse, RunSummary, AskRequest, AskResponse
 from app.anomaly_detector import detect_anomalies
 from app.diagnosis import generate_diagnosis
+from app.ask import answer_question
 
 load_dotenv()
 
@@ -30,6 +31,11 @@ def health_check():
         "service": "TrainLens AI API",
         "version": "0.1.0",
     }
+
+
+@app.post("/api/ask", response_model=AskResponse)
+def ask_trainlens(payload: AskRequest) -> AskResponse:
+    return AskResponse(answer=answer_question(payload.question, payload.analysis))
 
 
 @app.post("/api/analyze", response_model=AnalyzeResponse)

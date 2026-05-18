@@ -47,3 +47,12 @@ class AnalyzeResponse(BaseModel):
     summary: RunSummary
     anomalies: List[Anomaly]
     diagnosis: Diagnosis
+
+
+class AskRequest(BaseModel):
+    question: str
+    analysis: AnalyzeResponse
+
+
+class AskResponse(BaseModel):
+    answer: str

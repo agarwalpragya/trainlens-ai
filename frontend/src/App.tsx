@@ -8,6 +8,7 @@ import { DiagnosisPanel } from './components/DiagnosisPanel';
 import { LossCurveChart } from './components/LossCurveChart';
 import { ExportPostmortemButton } from './components/ExportPostmortemButton';
 import { AnalysisLoadingCard } from './components/AnalysisLoadingCard';
+import { AskTrainLensCard } from './components/AskTrainLensCard';
 import type { AnalyzeResponse, Anomaly } from './types/analysis';
 
 export default function App() {
@@ -104,6 +105,8 @@ export default function App() {
             ))}
 
             <DiagnosisPanel diagnosis={result.diagnosis} />
+
+            <AskTrainLensCard result={result} />
 
             <ExportPostmortemButton
               request={currentRun.payload}
