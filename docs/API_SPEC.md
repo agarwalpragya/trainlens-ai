@@ -2,11 +2,19 @@
 
 ## Base URL
 
-Local:
+Local development:
 
 ```text
 http://localhost:8000
 ```
+
+Production (Railway):
+
+```text
+https://trainlens-ai-backend.up.railway.app
+```
+
+The frontend reads the base URL from `VITE_API_BASE_URL` at build time; the default is `http://localhost:8000` for local development.
 
 ## GET /
 
@@ -157,8 +165,6 @@ The `anomaly_type` field in each anomaly object will be one of:
 | `training_stall` | warning | val_loss changed by < 0.001 for 5+ consecutive steps |
 
 The `diagnosis` field always reflects the first anomaly in the `anomalies` array.
-
----
 
 ---
 

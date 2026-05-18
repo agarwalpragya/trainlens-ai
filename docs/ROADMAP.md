@@ -76,19 +76,28 @@ Goal: turn the MVP into a public portfolio project.
 - [x] Cross-highlighting between anomaly cards and D3 chart markers
 - [x] Screenshots in README
 - [x] Demo GIF in README
-
-### Remaining
-
-- [ ] Frontend file upload for real training logs
-- [ ] Frontend unit tests
-- [ ] Deployed demo
-- [ ] Add project to LinkedIn Featured
-- [ ] Add project to resume
+- [x] Frontend JSON file upload with client-side validation
+- [x] GPU utilization D3 chart with 50% threshold and anomaly markers
+- [x] Memory utilization D3 area chart with 90% OOM threshold and anomaly markers
+- [x] Unified data source card with tab toggle (mutually exclusive sample / upload modes)
+- [x] Deployed — backend on Railway, frontend on Vercel
 
 ### Definition of Done
 
 - [x] Public GitHub repo is polished
 - [x] README explains setup and architecture
 - [x] Demo GIF shows the full workflow
-- [ ] Live demo is available
-- [ ] LinkedIn launch post is published
+- [x] Live demo is available at https://trainlens-ai-azure.vercel.app/
+
+---
+
+## Future Enhancements
+
+Not scheduled. Items below require explicit scope decisions before starting.
+
+- [ ] Frontend unit tests
+- [ ] Chat history for Ask TrainLens (persistent conversation per run)
+- [ ] Raw log / CSV / TensorBoard format parsing
+- [ ] Authentication and multi-user support
+- [ ] Persistent storage (PostgreSQL)
+- [ ] Streaming diagnosis responses

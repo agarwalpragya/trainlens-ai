@@ -4,20 +4,22 @@
 
 TrainLens AI analyzes ML training logs and detects training failure patterns.
 
-The MVP backend is intentionally simple:
+The backend is intentionally simple:
 
 - FastAPI backend
-- Sample JSON logs
+- Sample JSON logs (and user-uploaded JSON via the frontend)
 - Rule-based anomaly detector pipeline
 - Claude diagnosis with rule-based fallback
 - Claude-powered follow-up Q&A with fallback
 - React/D3 frontend with premium dark UI
 
+Deployed on Railway (backend) and Vercel (frontend). Live at https://trainlens-ai-azure.vercel.app/
+
 ## 2. High-Level Flow
 
 ```mermaid
 flowchart LR
-    A[Training Log JSON] --> B[POST /api/analyze]
+    A[Training Metrics JSON\nor file upload] --> B[POST /api/analyze]
     B --> C[Schema Validation]
     C --> D[Anomaly Detector Pipeline]
     D --> E[Diagnosis Generator]
@@ -27,6 +29,8 @@ flowchart LR
     G --> H
     H --> I[React Dashboard]
     I --> J[D3 Loss Curve]
+    I --> J2[GPU Utilization Chart]
+    I --> J3[Memory Utilization Chart]
     I --> K[Anomaly Cards]
     I --> L[Diagnosis Panel]
     I --> M[Markdown Export]
@@ -88,18 +92,47 @@ The prompt is sent to Claude (`claude-sonnet-4-5` by default). If `ANTHROPIC_API
 
 | Component | Purpose |
 |---|---|
-| `SampleRunSelector` | Dropdown + Analyze button for selecting a pre-built training log |
+| `DataSourceCard` | Unified data source selector — tab toggle between sample runs and JSON file upload; mutually exclusive modes, file parsing and validation included |
 | `AnalysisLoadingCard` | Animated loading card with rotating status messages and educational facts |
 | `AnalysisSummary` | Run name, total steps, and anomaly count stats |
-| `LossCurveChart` | D3 loss curve with clickable severity-colored anomaly markers |
+| `LossCurveChart` | D3 loss curve (train + val) with clickable severity-colored anomaly markers |
+| `GpuUtilizationChart` | D3 line chart showing GPU utilization % with a dashed 50% underutilization threshold and anomaly markers |
+| `MemoryUsageChart` | D3 area+line chart showing memory utilization % with a dashed 90% OOM risk threshold and anomaly markers |
 | `AnomalyCard` | Per-anomaly card with type, severity badge, step, confidence, and relevant metrics |
 | `DiagnosisPanel` | Headline, root cause, explanation, and numbered remediation steps |
 | `AskTrainLensCard` | Mentor Q&A panel — prompt chips, free-text input, Claude-powered answers |
 | `ExportPostmortemButton` | One-click Markdown postmortem export |
 
-The results view uses a two-column CSS Grid layout at ≥1080px: main content left, Ask TrainLens sidebar right (sticky).
+The results view uses a two-column CSS Grid layout at ≥1080px: main content left, Ask TrainLens sidebar right (sticky). GPU and Memory charts sit in a two-column sub-grid within the main column. On narrow screens all columns collapse to single-column.
 
-## 7. MVP Architecture Decisions
+## 7. JSON File Upload Flow
+
+The frontend handles file upload entirely client-side using the FileReader API — no upload endpoint exists on the backend.
+
+1. User selects a `.json` file via the `DataSourceCard` upload tab.
+2. `FileReader.readAsText` reads the file in-browser.
+3. `validateTrainingRun` checks that the parsed object has a non-empty `run_name` and a non-empty `metrics` array where every step has at least `step` and `train_loss`.
+4. If valid, the parsed payload replaces the sample run as the active data source.
+5. Clicking Analyze sends the uploaded payload to `POST /api/analyze` — the same endpoint as sample runs.
+
+## 8. Deployment Architecture
+
+```mermaid
+flowchart LR
+    U[User browser] --> V[Vercel — React frontend]
+    V -->|POST /api/analyze\nPOST /api/ask| R[Railway — FastAPI backend]
+    R -->|Claude API calls| A[Anthropic API]
+```
+
+| Layer | Platform | Notes |
+|---|---|---|
+| Frontend | Vercel | Static build from `frontend/`. `VITE_API_BASE_URL` points to Railway. |
+| Backend | Railway | Python 3.12 + FastAPI. `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` set as env vars. |
+| AI | Anthropic API | `claude-sonnet-4-5` by default. Falls back to deterministic if key is absent. |
+
+CORS is configured on the FastAPI backend to accept requests from the Vercel frontend origin.
+
+## 9. MVP Architecture Decisions
 
 - Use FastAPI for lightweight API development.
 - Use uv for modern Python dependency management.
@@ -107,9 +140,10 @@ The results view uses a two-column CSS Grid layout at ≥1080px: main content le
 - Start with JSON logs instead of real-time streaming.
 - Claude diagnosis with a rule-based fallback (active when `ANTHROPIC_API_KEY` is unset or Claude fails).
 - Ask TrainLens Q&A passes the full `AnalyzeResponse` as context, avoiding a separate storage layer.
+- File upload is handled client-side (FileReader) — no backend upload endpoint required.
 - Delay database until the core loop is proven.
 
-## 8. Future Architecture
+## 10. Future Architecture
 
 ```mermaid
 flowchart LR

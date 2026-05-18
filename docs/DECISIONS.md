@@ -140,3 +140,53 @@ The prompt sent to Claude is constructed from the structured anomaly and diagnos
 ### Consequences
 
 Simple stateless implementation with no storage dependency. The tradeoff is larger request payloads when the context window is long, and no ability to retrieve or share past analyses. Persistence can be added later without changing the Q&A contract.
+
+---
+
+## ADR-007: Unified data source card over two separate components
+
+### Decision
+
+Replace the separate `SampleRunSelector` and `JsonUploadCard` components with a single `DataSourceCard` that uses a tab toggle to switch between sample run and upload modes.
+
+### Reason
+
+The original two-card layout allowed a user to have both a sample run selected and an uploaded file present simultaneously. The active payload was resolved silently with `uploadedPayload ?? samplePayload`, giving no visible indication of which source would be analyzed. This caused confusion: the Analyze button was inside the sample selector card, making it look unrelated to uploaded files.
+
+The unified card makes the two modes explicitly mutually exclusive. Switching tabs clears the inactive source and resets the analysis. The standalone Analyze button below the card carries a context label ("Analyze · Loss Divergence" or "Analyze · my_run.json") so the user always knows what will be submitted.
+
+### Alternatives Considered
+
+- Keep two separate cards but add visible precedence indicators
+- Add a separate "active source" label above the Analyze button
+
+### Consequences
+
+Cleaner mental model: one card = one data source. The Analyze button's label is the single source of truth for what will be analyzed. Slight increase in component complexity (one component owns both the select and the FileReader logic).
+
+---
+
+## ADR-008: Railway for backend, Vercel for frontend
+
+### Decision
+
+Deploy the FastAPI backend to Railway and the React frontend to Vercel.
+
+### Reason
+
+Both platforms offer zero-config deployments from a GitHub repo and free tiers suitable for a portfolio project.
+
+- **Vercel** is purpose-built for static/SPA frontends. The Vite build output deploys with a single config file and handles CDN distribution automatically.
+- **Railway** runs arbitrary Dockerless server processes. It detects the Python/FastAPI project, runs `uv sync` and starts `uvicorn`, and provides persistent env vars for `ANTHROPIC_API_KEY`.
+
+Keeping the two layers on separate platforms makes them independently scalable and avoids bundling a Python server into a Vercel serverless function (which has cold-start and timeout constraints that would affect long diagnosis requests).
+
+### Alternatives Considered
+
+- Render (supports both static sites and Python services, slightly more configuration)
+- Fly.io (more control, more ops overhead)
+- Single platform for both (would require a monorepo adapter or server-side rendering)
+
+### Consequences
+
+Frontend and backend have independent deployment pipelines. CORS must be explicitly configured on the FastAPI backend to allow the Vercel origin. `VITE_API_BASE_URL` must be set in the Vercel project env vars to point to the Railway backend URL.

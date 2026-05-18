@@ -2,6 +2,8 @@
 
 **AI-assisted ML training run failure diagnosis.**
 
+**[Live demo →](https://trainlens-ai-azure.vercel.app/)**
+
 TrainLens AI is a lightweight diagnostic layer for ML training runs. It accepts training metrics, detects failure patterns such as loss divergence, vanishing gradients, and OOM risk, and returns structured root-cause analysis with remediation steps — optionally powered by Claude.
 
 > **Portfolio note:** This is a working MVP, not a production observability platform. It does not replace W&B, MLflow, or similar tools. It demonstrates an end-to-end AI-assisted diagnosis pipeline built with FastAPI, React, D3, and the Anthropic API.
@@ -34,6 +36,7 @@ TrainLens AI is a lightweight diagnostic layer for ML training runs. It accepts 
 - **Cross-highlighting** — click an anomaly card or chart marker to keep the selected anomaly in focus across all charts
 - **Diagnosis panel** — headline, root cause, explanation, and numbered remediation steps
 - **Markdown postmortem export** — one-click download of a structured incident report
+- **Unified data source selector** — tab toggle between sample runs and JSON file upload; mutually exclusive, always shows what will be analyzed
 - **Premium dark UI** — sticky header, mentor-style animated loading card, two-column layout with sticky Ask TrainLens sidebar
 - **Full type safety** — Pydantic models on the backend, TypeScript interfaces on the frontend
 
@@ -55,7 +58,7 @@ TrainLens AI is a lightweight diagnostic layer for ML training runs. It accepts 
 
 ```mermaid
 flowchart LR
-    A[Training Metrics JSON] --> B[POST /api/analyze]
+    A[Training Metrics JSON\nor file upload] --> B[POST /api/analyze]
     B --> C[Schema Validation]
     C --> D[Anomaly Detector Pipeline]
     D --> E[Diagnosis Generator]
@@ -65,6 +68,8 @@ flowchart LR
     G --> H
     H --> I[React Dashboard]
     I --> J[D3 Loss Curve]
+    I --> J2[GPU Utilization Chart]
+    I --> J3[Memory Utilization Chart]
     I --> K[Anomaly Cards]
     I --> L[Diagnosis Panel]
     I --> M[Markdown Export]
@@ -84,6 +89,7 @@ flowchart LR
 | Frontend | React 18, TypeScript, Vite |
 | Visualisation | D3.js v7 |
 | Testing | pytest (backend), `tsc --noEmit` + Vite build (frontend) |
+| Deployment | Railway (backend), Vercel (frontend) |
 
 ---
 
@@ -260,9 +266,12 @@ TypeScript compilation + Vite production build. No test framework is wired up ye
 | ✅ | Frontend JSON file upload |
 | ✅ | GPU utilization chart |
 | ✅ | Memory utilization chart |
+| ✅ | Unified data source card with tab toggle |
+| ✅ | Deployed — backend on Railway, frontend on Vercel |
 | ⬜ | Raw log / CSV parsing |
 | ⬜ | Frontend unit tests |
-| ⬜ | Deployed demo |
+| ⬜ | Chat history for Ask TrainLens |
+| ⬜ | Authentication and persistent storage |
 
 ---
 
