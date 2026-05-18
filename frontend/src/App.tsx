@@ -6,6 +6,7 @@ import { AnalysisSummary } from './components/AnalysisSummary';
 import { AnomalyCard } from './components/AnomalyCard';
 import { DiagnosisPanel } from './components/DiagnosisPanel';
 import { LossCurveChart } from './components/LossCurveChart';
+import { ExportPostmortemButton } from './components/ExportPostmortemButton';
 import type { AnalyzeResponse, Anomaly } from './types/analysis';
 
 export default function App() {
@@ -97,6 +98,12 @@ export default function App() {
             ))}
 
             <DiagnosisPanel diagnosis={result.diagnosis} />
+
+            <ExportPostmortemButton
+              request={currentRun.payload}
+              result={result}
+              selectedAnomaly={selectedAnomaly}
+            />
           </>
         )}
       </main>
