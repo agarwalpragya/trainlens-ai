@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { analyzeRun } from './api/trainlensApi';
 import { sampleRuns } from './data/sampleRuns';
-import { SampleRunSelector } from './components/SampleRunSelector';
-import { JsonUploadCard } from './components/JsonUploadCard';
+import { DataSourceCard } from './components/DataSourceCard';
 import { AnalysisSummary } from './components/AnalysisSummary';
 import { AnomalyCard } from './components/AnomalyCard';
 import { DiagnosisPanel } from './components/DiagnosisPanel';
@@ -14,7 +13,10 @@ import { AnalysisLoadingCard } from './components/AnalysisLoadingCard';
 import { AskTrainLensCard } from './components/AskTrainLensCard';
 import type { AnalyzeRequest, AnalyzeResponse, Anomaly } from './types/analysis';
 
+type DataSourceMode = 'sample' | 'upload';
+
 export default function App() {
+  const [dataSourceMode, setDataSourceMode]   = useState<DataSourceMode>('sample');
   const [selectedKey, setSelectedKey]         = useState<string>(sampleRuns[0].key);
   const [uploadedPayload, setUploadedPayload] = useState<AnalyzeRequest | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -26,13 +28,28 @@ export default function App() {
   const [analysisKey, setAnalysisKey]         = useState(0);
 
   const currentSampleRun = sampleRuns.find((r) => r.key === selectedKey) ?? sampleRuns[0];
-  // Uploaded JSON takes precedence over the sample selector when present.
-  const activePayload = uploadedPayload ?? currentSampleRun.payload;
+  const activePayload    = uploadedPayload ?? currentSampleRun.payload;
+
+  const canAnalyze   = dataSourceMode === 'sample' || uploadedPayload !== null;
+  const analyzeLabel = loading
+    ? 'Analyzing…'
+    : dataSourceMode === 'upload' && uploadedFileName
+      ? `Analyze · ${uploadedFileName}`
+      : `Analyze · ${currentSampleRun.label}`;
 
   function clearAnalysis() {
     setResult(null);
     setError(null);
     setSelectedAnomaly(null);
+  }
+
+  function handleModeChange(mode: DataSourceMode) {
+    setDataSourceMode(mode);
+    if (mode === 'sample') {
+      setUploadedPayload(null);
+      setUploadedFileName(null);
+    }
+    clearAnalysis();
   }
 
   async function handleAnalyze() {
@@ -64,29 +81,40 @@ export default function App() {
       </header>
 
       <main className="container">
-        <SampleRunSelector
+        <DataSourceCard
+          mode={dataSourceMode}
+          onModeChange={handleModeChange}
           selectedKey={selectedKey}
-          onChange={(key) => {
+          onSelectedKeyChange={(key) => {
             setSelectedKey(key);
             clearAnalysis();
           }}
-          onAnalyze={handleAnalyze}
-          loading={loading}
-        />
-
-        <JsonUploadCard
           uploadedFileName={uploadedFileName}
           onUpload={(payload, fileName) => {
             setUploadedPayload(payload);
             setUploadedFileName(fileName);
             clearAnalysis();
           }}
-          onClear={() => {
+          onUploadClear={() => {
             setUploadedPayload(null);
             setUploadedFileName(null);
             clearAnalysis();
           }}
+          loading={loading}
         />
+
+        <div className="analyze-action">
+          <button
+            className="btn-analyze"
+            onClick={handleAnalyze}
+            disabled={loading || !canAnalyze}
+          >
+            {analyzeLabel}
+          </button>
+          {dataSourceMode === 'upload' && !uploadedPayload && !loading && (
+            <span className="analyze-hint">Upload a JSON file above to enable analysis</span>
+          )}
+        </div>
 
         {loading && <AnalysisLoadingCard />}
 
