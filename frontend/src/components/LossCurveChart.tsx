@@ -9,7 +9,7 @@ interface Props {
   onAnomalyClick: (anomaly: Anomaly) => void;
 }
 
-const CHART_HEIGHT = 240;
+const CHART_HEIGHT = 300;
 const MARGIN = { top: 20, right: 24, bottom: 38, left: 50 };
 
 // Match the design token colors from globals.css.

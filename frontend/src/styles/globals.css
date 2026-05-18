@@ -42,9 +42,17 @@ body {
 
 /* ─── Layout ────────────────────────────────────────────────────────────────── */
 .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: var(--header-bg);
   color: var(--header-text);
   padding: 20px 24px;
+}
+
+.app-header-inner {
+  max-width: 860px;
+  margin: 0 auto;
 }
 
 .app-header h1 {
@@ -168,14 +176,25 @@ body {
   color: var(--text-muted);
 }
 
+/* ─── Empty state ───────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.empty-state-text {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
 /* ─── Loading / error ───────────────────────────────────────────────────────── */
 .status-loading {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   color: var(--text-secondary);
   font-size: 0.9375rem;
-  padding: 6px 0;
 }
 
 .spinner {
@@ -189,6 +208,97 @@ body {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Analysis loading card ─────────────────────────────────────────────────── */
+.loading-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.loading-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.loading-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+/* Five signal bars animate as a symmetric wave */
+.loading-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.loading-bars span {
+  display: block;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+  animation: bar-wave 1s ease-in-out infinite;
+}
+
+.loading-bars span:nth-child(1) { height: 10px; animation-delay: 0s;    }
+.loading-bars span:nth-child(2) { height: 18px; animation-delay: 0.15s; }
+.loading-bars span:nth-child(3) { height: 24px; animation-delay: 0.3s;  }
+.loading-bars span:nth-child(4) { height: 18px; animation-delay: 0.45s; }
+.loading-bars span:nth-child(5) { height: 10px; animation-delay: 0.6s;  }
+
+@keyframes bar-wave {
+  0%, 100% { transform: scaleY(0.3); opacity: 0.35; }
+  50%       { transform: scaleY(1);  opacity: 1;    }
+}
+
+.loading-status {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  min-height: 1.5em;
+}
+
+.loading-fact-box {
+  background: var(--bg);
+  border-radius: calc(var(--radius) - 2px);
+  border-left: 3px solid var(--accent);
+  padding: 10px 14px;
+}
+
+.loading-fact-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.loading-fact {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  min-height: 2.4em;
+}
+
+/* Fade-in used on both rotating status and fact text.
+   key prop on the inner span forces remount → animation retriggers. */
+@keyframes text-fade-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.loading-text-fade {
+  display: block;
+  animation: text-fade-in 0.25s ease-out forwards;
+}
 
 .error-banner {
   background: var(--critical-bg);
@@ -258,6 +368,10 @@ body {
 .anomaly-card.selected {
   box-shadow: 0 0 0 2px var(--accent), var(--shadow);
 }
+
+.anomaly-card.critical:hover  { background: #fee2e2; }
+.anomaly-card.warning:hover   { background: #fef3c7; }
+.anomaly-card:not(.critical):not(.warning):hover { background: #f8fafc; }
 
 .anomaly-header {
   padding: 14px 18px 10px;

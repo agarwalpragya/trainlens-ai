@@ -66,7 +66,8 @@ Goal: turn the MVP into a public portfolio project.
 ### Tasks
 
 - [x] Replace mocked diagnosis with Claude-powered diagnosis and deterministic fallback
-- [ ] Add postmortem markdown export
+- [x] Add postmortem markdown export
+- [x] UI polish and responsive cleanup
 - [ ] Improve README with screenshots
 - [ ] Record demo GIF
 - [ ] Deploy frontend

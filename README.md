@@ -1,25 +1,94 @@
 # TrainLens AI
 
-AI-powered ML training run failure diagnosis platform.
+**AI-assisted ML training run failure diagnosis.**
 
-TrainLens parses ML training logs and metrics, detects failure patterns including loss divergence, vanishing gradients, GPU underutilization, OOM risk, and training stalls, and returns structured root-cause analysis with remediation steps.
+TrainLens AI is a lightweight diagnostic layer for ML training runs. It accepts training metrics, detects failure patterns such as loss divergence, vanishing gradients, and OOM risk, and returns structured root-cause analysis with remediation steps — optionally powered by Claude.
 
-## Stack
+> **Portfolio note:** This is a working MVP, not a production observability platform. It does not replace W&B, MLflow, or similar tools. It demonstrates an end-to-end AI-assisted diagnosis pipeline built with FastAPI, React, D3, and the Anthropic API.
 
-- **Backend:** Python 3.12, FastAPI, Pydantic, uv
-- **Frontend:** React, TypeScript, Vite, D3.js _(Week 2)_
+---
+
+## Screenshots
+
+![TrainLens AI Demo](docs/assets/trainlens-demo.gif)
+
+| Dashboard | Loss curve |
+|---|---|
+| ![Dashboard](docs/assets/trainlens-dashboard.png) | ![Loss curve](docs/assets/trainlens-loss-curve.png) |
+
+| Diagnosis panel | Postmortem export |
+|---|---|
+| ![Diagnosis](docs/assets/trainlens-diagnosis.png) | ![Postmortem](docs/assets/trainlens-postmortem.png) |
+
+---
+
+## Features
+
+- **5 anomaly detectors** — rule-based, deterministic, no model required
+- **Claude-powered diagnosis** — structured root-cause analysis via the Anthropic API; gracefully falls back to deterministic diagnosis when the API key is absent or the call fails
+- **D3 loss curve** — train/validation loss chart with severity-colored anomaly markers
+- **Cross-highlighting** — click an anomaly card or chart marker to keep the selected anomaly in focus
+- **Diagnosis panel** — headline, root cause, explanation, and numbered remediation steps
+- **Markdown postmortem export** — one-click download of a structured incident report
+- **Full type safety** — Pydantic models on the backend, TypeScript interfaces on the frontend
+
+---
 
 ## Detected anomaly types
 
-| Anomaly | Severity |
-|---|---|
-| Loss divergence | critical |
-| Vanishing gradients | warning |
-| GPU underutilization | warning |
-| OOM risk | critical |
-| Training stall | warning |
+| Anomaly | Key | Severity | Detection rule |
+|---|---|---|---|
+| Loss Divergence | `loss_divergence` | critical | `train_loss` increases >200% compared with the metric three positions earlier |
+| Vanishing Gradients | `vanishing_gradients` | warning | `gradient_norm` < 0.001 for 5+ consecutive metrics |
+| GPU Underutilization | `gpu_underutilization` | warning | `gpu_utilization_percent` < 50 for 5+ consecutive metrics |
+| OOM Risk | `oom_risk` | critical | `memory_used_gb / memory_total_gb` ≥ 0.90 at any step |
+| Training Stall | `training_stall` | warning | `val_loss` changes < 0.001 across 5+ consecutive logged intervals |
 
-## Run the backend
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Training Metrics JSON] --> B[POST /api/analyze]
+    B --> C[Schema Validation]
+    C --> D[Anomaly Detector Pipeline]
+    D --> E[Diagnosis Generator]
+    E -->|API key present| F[Claude API]
+    E -->|API key absent or call fails| G[Deterministic Fallback]
+    F --> H[Structured API Response]
+    G --> H
+    H --> I[React Dashboard]
+    I --> J[D3 Loss Curve]
+    I --> K[Anomaly Cards]
+    I --> L[Diagnosis Panel]
+    I --> M[Markdown Export]
+```
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Python 3.12, FastAPI, Pydantic v2, uv |
+| AI | Anthropic Python SDK (`claude-sonnet-4-5` by default) |
+| Frontend | React 18, TypeScript, Vite |
+| Visualisation | D3.js v7 |
+| Testing | pytest (backend), `tsc --noEmit` + Vite build (frontend) |
+
+---
+
+## Quick start
+
+### 1. Clone
+
+```bash
+git clone https://github.com/agarwalpragya/trainlens-ai.git
+cd trainlens-ai
+```
+
+### 2. Backend
 
 ```bash
 cd backend
@@ -27,19 +96,62 @@ uv sync
 uv run uvicorn app.main:app --reload
 ```
 
-API available at `http://localhost:8000`.  
+API available at `http://localhost:8000`.
 Interactive docs at `http://localhost:8000/docs`.
 
-## Run tests
+### 3. Frontend
+
+Open a second terminal from the repo root:
 
 ```bash
-cd backend
-uv run pytest
+cd frontend
+npm install
+npm run dev
 ```
 
-## Try it with a sample log
+Dashboard available at `http://localhost:5173`.
 
-Run from the repo root (not from inside `backend/`):
+### 4. Claude diagnosis (optional)
+
+Create `backend/.env`:
+
+```env
+ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_MODEL=claude-sonnet-4-5
+```
+
+If `ANTHROPIC_API_KEY` is not set, the backend returns deterministic rule-based diagnosis automatically. No configuration is required to run without it.
+
+---
+
+## Environment variables
+
+| Variable | Location | Default | Description |
+|---|---|---|---|
+| `ANTHROPIC_API_KEY` | `backend/.env` | _(empty)_ | Anthropic API key. Omit to use deterministic fallback. |
+| `ANTHROPIC_MODEL` | `backend/.env` | `claude-sonnet-4-5` | Claude model used for diagnosis. |
+| `VITE_API_BASE_URL` | `frontend/.env` | `http://localhost:8000` | Backend base URL for the frontend API client. |
+
+---
+
+## Sample logs
+
+Six pre-built payloads are included in `sample_logs/`. Run from the **repo root**:
+
+| File | Anomaly triggered |
+|---|---|
+| `diverging_run.json` | `loss_divergence` |
+| `vanishing_gradients.json` | `vanishing_gradients` |
+| `gpu_underutilized.json` | `gpu_underutilization` |
+| `oom_risk.json` | `oom_risk` |
+| `training_stall.json` | `training_stall` |
+| `normal_run.json` | none |
+
+---
+
+## API example
+
+### Request
 
 ```bash
 curl -X POST http://localhost:8000/api/analyze \
@@ -47,21 +159,106 @@ curl -X POST http://localhost:8000/api/analyze \
   -d @sample_logs/diverging_run.json
 ```
 
-Other sample logs available in `sample_logs/`:
+### Response
 
-| File | Anomaly triggered |
+```json
+{
+  "run_name": "resnet50_diverging_loss_demo",
+  "summary": {
+    "total_steps": 6,
+    "anomalies_detected": 1
+  },
+  "anomalies": [
+    {
+      "anomaly_type": "loss_divergence",
+      "detected_at_step": 500,
+      "severity": "critical",
+      "confidence": 0.91,
+      "relevant_metrics": {
+        "previous_step": 200,
+        "previous_train_loss": 0.71,
+        "current_step": 500,
+        "current_train_loss": 2.35,
+        "increase_percent": 230.99,
+        "gradient_norm": 87.4,
+        "learning_rate": 0.001
+      },
+      "context_window": ["..."]
+    }
+  ],
+  "diagnosis": {
+    "headline": "Training run likely diverged due to unstable optimization.",
+    "root_cause": "Training loss increased sharply near step 500, suggesting unstable optimization behavior.",
+    "explanation": "A sudden loss spike may indicate an overly high learning rate, exploding gradients, or unstable batch data.",
+    "remediation_steps": [
+      "Reduce the learning rate and rerun from the last stable checkpoint.",
+      "Inspect gradient norm around the failure step.",
+      "Check whether a specific data batch caused the spike.",
+      "Enable gradient clipping if exploding gradients are suspected."
+    ]
+  }
+}
+```
+
+Full request/response schema: [`docs/API_SPEC.md`](docs/API_SPEC.md)
+
+---
+
+## Testing
+
+### Backend
+
+```bash
+cd backend
+uv run pytest -v
+```
+
+29 tests covering all five detectors, edge cases, Claude fallback paths, and mock diagnosis correctness.
+
+### Frontend
+
+```bash
+cd frontend
+npm run build
+```
+
+TypeScript compilation + Vite production build. No test framework is wired up yet — see [Roadmap](#roadmap).
+
+---
+
+## Current limitations
+
+- Accepts up to the full request payload in a single POST call; no streaming or incremental ingestion.
+- No authentication or multi-user support.
+- No persistent storage; results exist only in the API response.
+- Only one anomaly per detector type is reported per run (first occurrence wins).
+- Claude diagnosis is based on the primary (first) anomaly only.
+- Frontend sample data is hardcoded; no file upload yet.
+
+---
+
+## Roadmap
+
+| Status | Item |
 |---|---|
-| `diverging_run.json` | loss_divergence |
-| `vanishing_gradients.json` | vanishing_gradients |
-| `gpu_underutilized.json` | gpu_underutilization |
-| `oom_risk.json` | oom_risk |
-| `training_stall.json` | training_stall |
-| `normal_run.json` | none |
+| ✅ | FastAPI backend with 5 anomaly detectors |
+| ✅ | Claude-powered diagnosis with deterministic fallback |
+| ✅ | React + D3 dashboard |
+| ✅ | Markdown postmortem export |
+| ✅ | UI polish and responsive cleanup |
+| ⬜ | Frontend file upload for real training logs |
+| ✅ | Screenshots in README |
+| ✅ | Demo GIF in README |
+| ⬜ | Frontend unit tests |
+| ⬜ | Deployed demo |
 
-## Docs
+---
+
+## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [API Specification](docs/API_SPEC.md)
 - [Data Model](docs/DATA_MODEL.md)
-- [Decisions](docs/DECISIONS.md)
+- [Product Requirements](docs/PRD.md)
+- [Architecture Decisions](docs/DECISIONS.md)
 - [Roadmap](docs/ROADMAP.md)

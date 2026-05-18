@@ -7,6 +7,7 @@ import { AnomalyCard } from './components/AnomalyCard';
 import { DiagnosisPanel } from './components/DiagnosisPanel';
 import { LossCurveChart } from './components/LossCurveChart';
 import { ExportPostmortemButton } from './components/ExportPostmortemButton';
+import { AnalysisLoadingCard } from './components/AnalysisLoadingCard';
 import type { AnalyzeResponse, Anomaly } from './types/analysis';
 
 export default function App() {
@@ -42,8 +43,10 @@ export default function App() {
   return (
     <>
       <header className="app-header">
-        <h1>TrainLens AI</h1>
-        <p>ML training run failure diagnosis</p>
+        <div className="app-header-inner">
+          <h1>TrainLens AI</h1>
+          <p>ML training run failure diagnosis</p>
+        </div>
       </header>
 
       <main className="container">
@@ -59,17 +62,20 @@ export default function App() {
           loading={loading}
         />
 
-        {loading && (
-          <div className="status-loading">
-            <span className="spinner" />
-            Analyzing run…
-          </div>
-        )}
+        {loading && <AnalysisLoadingCard />}
 
         {error && (
           <div className="error-banner">
-            <strong>Backend unavailable</strong>
-            {error}
+            <strong>Connection error</strong>
+            Could not connect to the analysis server. Please try again.
+          </div>
+        )}
+
+        {!result && !loading && !error && (
+          <div className="empty-state">
+            <p className="empty-state-text">
+              Select a sample run above and click <strong>Analyze</strong> to see anomaly detection results and diagnosis.
+            </p>
           </div>
         )}
 

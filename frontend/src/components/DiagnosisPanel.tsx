@@ -13,10 +13,22 @@ export function DiagnosisPanel({ diagnosis }: Props) {
       <div className="card-title">Diagnosis</div>
 
       {isHealthy ? (
-        <div className="healthy-note">
-          <span className="healthy-dot" />
-          {headline}
-        </div>
+        <>
+          <div className="healthy-note">
+            <span className="healthy-dot" />
+            {headline}
+          </div>
+
+          <div className="diagnosis-section" style={{ marginTop: '14px' }}>
+            <div className="diagnosis-label">Root cause</div>
+            <p className="diagnosis-text">{root_cause}</p>
+          </div>
+
+          <div className="diagnosis-section">
+            <div className="diagnosis-label">Explanation</div>
+            <p className="diagnosis-text">{explanation}</p>
+          </div>
+        </>
       ) : (
         <>
           <p className="diagnosis-headline">{headline}</p>

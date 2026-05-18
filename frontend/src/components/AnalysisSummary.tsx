@@ -13,7 +13,7 @@ export function AnalysisSummary({ response }: Props) {
       <div className="card-title">Run summary</div>
       <div className="summary-stats">
         <div className="stat">
-          <span className="stat-label">Run</span>
+          <span className="stat-label">Run name</span>
           <span className="stat-value run-name">{run_name}</span>
         </div>
         <div className="stat">

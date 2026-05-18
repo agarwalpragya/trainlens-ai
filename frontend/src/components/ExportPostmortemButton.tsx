@@ -9,7 +9,7 @@ interface Props {
 
 export function ExportPostmortemButton({ request, result, selectedAnomaly }: Props) {
   return (
-    <div className="export-row">
+    <div className="card export-row">
       <button
         className="btn-export"
         onClick={() => downloadPostmortem(request, result, selectedAnomaly)}

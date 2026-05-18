@@ -41,9 +41,9 @@ export function AnomalyCard({ anomaly, isSelected, onClick }: Props) {
         <span className="anomaly-type">{label}</span>
         <div className="anomaly-meta">
           <span className={`badge ${severity}`}>{severity}</span>
-          <span className="anomaly-step">step {detected_at_step}</span>
+          <span className="anomaly-step">Step {detected_at_step}</span>
           <span className="anomaly-confidence">
-            confidence {Math.round(confidence * 100)}%
+            Confidence {Math.round(confidence * 100)}%
           </span>
         </div>
       </div>
