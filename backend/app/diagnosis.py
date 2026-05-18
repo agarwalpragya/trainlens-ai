@@ -175,10 +175,14 @@ Context window (steps around the anomaly):
 Instructions:
 - Base your diagnosis ONLY on the metrics provided above. Do not invent unsupported evidence.
 - If the evidence is insufficient to make a confident claim, say so clearly in the explanation.
+- Use hedged language when inferring causes that are not directly observable in the metrics.
+  Use phrases like "may indicate," "suggests," "is consistent with," or "could be caused by"
+  rather than stating inferred causes as definitive facts.
+  Reserve direct language (e.g. "caused by") only when the metric evidence makes it unambiguous.
 - Keep the diagnosis practical and engineer-readable.
 - Return a JSON object with EXACTLY these four keys:
   - "headline": one-sentence summary of the problem (string)
-  - "root_cause": concise root-cause statement (string)
+  - "root_cause": concise root-cause statement; use hedged language if the cause is inferred (string)
   - "explanation": 2–4 sentence technical explanation (string)
   - "remediation_steps": list of 2–5 actionable steps (array of strings)
 
