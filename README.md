@@ -14,15 +14,21 @@ TrainLens AI is a lightweight diagnostic layer for ML training runs. It accepts 
 
 ![TrainLens AI Demo](docs/assets/trainlens-demo.gif)
 
-| Dashboard | Loss curve |
+| Empty State | Loss Divergence |
 |---|---|
-| ![Dashboard](docs/assets/trainlens-dashboard.png) | ![Loss curve](docs/assets/trainlens-loss-curve.png) |
+| ![Empty State](docs/assets/trainlens-empty-state.png) | ![Loss Divergence](docs/assets/trainlens-loss-divergence.png) |
 
-| Diagnosis panel | Postmortem export |
+| Diagnosis Panel | Ask TrainLens |
 |---|---|
-| ![Diagnosis](docs/assets/trainlens-diagnosis.png) | ![Postmortem](docs/assets/trainlens-postmortem.png) |
+| ![Diagnosis](docs/assets/trainlens-diagnosis.png) | ![Ask TrainLens](docs/assets/trainlens-ask.png) |
 
----
+| Resource Signals | Postmortem Export |
+|---|---|
+| ![Resource Signals](docs/assets/trainlens-resource-signals.png) | ![Postmortem](docs/assets/trainlens-postmortem.png) |
+
+| JSON Upload |  |
+|---|---|
+| ![Upload](docs/assets/trainlens-upload.png) | |
 
 ## Features
 
