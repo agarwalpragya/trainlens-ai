@@ -113,3 +113,30 @@ The anomaly detector should work independently before integrating Claude/OpenAI.
 ### Consequences
 
 Lower setup friction, no API key needed on Day 1, and easier backend testing.
+
+### Status
+
+Decision implemented as planned. Claude diagnosis (via `app/diagnosis.py`) was added in Week 3, with the deterministic fallback remaining active when `ANTHROPIC_API_KEY` is absent or the API call fails.
+
+---
+
+## ADR-006: Pass full AnalyzeResponse as context for Ask TrainLens Q&A
+
+### Decision
+
+The `POST /api/ask` endpoint accepts the full `AnalyzeResponse` alongside the user's question, rather than storing analysis results server-side and referencing them by ID.
+
+### Reason
+
+This approach avoids introducing a persistence layer (database or cache) at the MVP stage. The client already holds the `AnalyzeResponse` from the prior `/api/analyze` call, so passing it back is stateless and straightforward.
+
+The prompt sent to Claude is constructed from the structured anomaly and diagnosis fields, not free-form text, ensuring focused and evidence-grounded answers.
+
+### Alternatives Considered
+
+- Store analysis results in PostgreSQL and reference by run ID
+- Cache results in Redis with a TTL
+
+### Consequences
+
+Simple stateless implementation with no storage dependency. The tradeoff is larger request payloads when the context window is long, and no ability to retrieve or share past analyses. Persistence can be added later without changing the Q&A contract.

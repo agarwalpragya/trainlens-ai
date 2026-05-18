@@ -166,3 +166,41 @@ The full response from `POST /api/analyze`.
 | summary | RunSummary | Step count and anomaly count |
 | anomalies | Anomaly[] | All detected anomalies, one per type at most |
 | diagnosis | Diagnosis | Root-cause analysis for the first anomaly |
+
+---
+
+## AskRequest
+
+The request body for `POST /api/ask`.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| question | string | yes | Free-form follow-up question about the run |
+| analysis | AnalyzeResponse | yes | Full response from a prior `/api/analyze` call |
+
+### Example
+
+```json
+{
+  "question": "What should I try first?",
+  "analysis": { "run_name": "...", "summary": { "..." }, "anomalies": [], "diagnosis": { "..." } }
+}
+```
+
+---
+
+## AskResponse
+
+The response from `POST /api/ask`.
+
+| Field | Type | Description |
+|---|---|---|
+| answer | string | Claude's answer grounded in the run context, or a fallback message if Claude is not configured |
+
+### Example
+
+```json
+{
+  "answer": "Based on the detected loss divergence at step 500, the most immediate action is to reduce the learning rate..."
+}
+```

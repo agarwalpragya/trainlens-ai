@@ -3,10 +3,11 @@ import { askQuestion } from '../api/trainlensApi';
 import type { AnalyzeResponse } from '../types/analysis';
 
 const SUGGESTED_QUESTIONS = [
-  'Why did this happen?',
-  'Explain this in simple terms.',
+  'Explain this simply',
   'What should I try first?',
-  'Is this a model issue or resource issue?',
+  'Is this model or resource related?',
+  'What evidence supports this?',
+  'How would I explain this to my team?',
 ];
 
 interface Props {
@@ -48,8 +49,11 @@ export function AskTrainLensCard({ result }: Props) {
   }
 
   return (
-    <div className="card">
-      <p className="card-title">Ask TrainLens</p>
+    <div className="ask-mentor-card">
+      <div className="ask-mentor-header">
+        <p className="ask-mentor-title">Ask TrainLens</p>
+        <p className="ask-mentor-subtitle">Ask follow-up questions grounded in this run's metrics and diagnosis.</p>
+      </div>
 
       <div className="ask-chips">
         {SUGGESTED_QUESTIONS.map((q) => (

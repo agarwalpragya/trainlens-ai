@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 
 const STATUSES = [
-  'Parsing training metrics...',
-  'Detecting anomaly patterns...',
-  'Building context window...',
-  'Asking Claude for diagnosis...',
-  'Preparing postmortem-ready output...',
+  'Reading the loss curve...',
+  'Checking gradient behavior...',
+  'Evaluating resource pressure...',
+  'Building an evidence window...',
+  'Preparing diagnosis and remediation steps...',
 ];
 
 const FACTS = [

@@ -12,13 +12,13 @@ interface Props {
 const CHART_HEIGHT = 300;
 const MARGIN = { top: 20, right: 24, bottom: 38, left: 50 };
 
-// Match the design token colors from globals.css.
-const TRAIN_COLOR = '#3b82f6';
-const VAL_COLOR   = '#a855f7';
+// Colors tuned for the dark theme surface.
+const TRAIN_COLOR = '#60a5fa';
+const VAL_COLOR   = '#c084fc';
 const SEVERITY_COLOR: Record<string, string> = {
-  critical: '#ef4444',
-  warning:  '#f59e0b',
-  info:     '#3b82f6',
+  critical: '#f87171',
+  warning:  '#fbbf24',
+  info:     '#60a5fa',
 };
 
 function severityColor(severity: string): string {
@@ -82,7 +82,7 @@ export function LossCurveChart({ metrics, anomalies, selectedAnomaly, onAnomalyC
       .attr('x2', innerWidth)
       .attr('y1', (d) => yScale(d))
       .attr('y2', (d) => yScale(d))
-      .attr('stroke', '#e2e8f0')
+      .attr('stroke', 'rgba(255,255,255,0.05)')
       .attr('stroke-width', 1);
 
     // ── X axis ───────────────────────────────────────────────────────────
@@ -97,11 +97,11 @@ export function LossCurveChart({ metrics, anomalies, selectedAnomaly, onAnomalyC
       .attr('transform', `translate(0,${innerHeight})`)
       .call(xAxis)
       .call((sel) => {
-        sel.select('.domain').attr('stroke', '#e2e8f0');
-        sel.selectAll('.tick line').attr('stroke', '#e2e8f0');
+        sel.select('.domain').attr('stroke', 'rgba(255,255,255,0.07)');
+        sel.selectAll('.tick line').attr('stroke', 'rgba(255,255,255,0.07)');
         sel
           .selectAll('.tick text')
-          .attr('fill', '#64748b')
+          .attr('fill', '#556070')
           .attr('font-size', '11px')
           .attr('font-family', 'system-ui, sans-serif');
       });
@@ -111,7 +111,7 @@ export function LossCurveChart({ metrics, anomalies, selectedAnomaly, onAnomalyC
       .attr('x', innerWidth / 2)
       .attr('y', innerHeight + 32)
       .attr('text-anchor', 'middle')
-      .attr('fill', '#94a3b8')
+      .attr('fill', '#445566')
       .attr('font-size', '11px')
       .attr('font-family', 'system-ui, sans-serif')
       .text('Step');
@@ -120,11 +120,11 @@ export function LossCurveChart({ metrics, anomalies, selectedAnomaly, onAnomalyC
     g.append('g')
       .call(d3.axisLeft(yScale).ticks(5))
       .call((sel) => {
-        sel.select('.domain').attr('stroke', '#e2e8f0');
-        sel.selectAll('.tick line').attr('stroke', '#e2e8f0');
+        sel.select('.domain').attr('stroke', 'rgba(255,255,255,0.07)');
+        sel.selectAll('.tick line').attr('stroke', 'rgba(255,255,255,0.07)');
         sel
           .selectAll('.tick text')
-          .attr('fill', '#64748b')
+          .attr('fill', '#556070')
           .attr('font-size', '11px')
           .attr('font-family', 'system-ui, sans-serif');
       });
@@ -135,7 +135,7 @@ export function LossCurveChart({ metrics, anomalies, selectedAnomaly, onAnomalyC
       .attr('x', -innerHeight / 2)
       .attr('y', -40)
       .attr('text-anchor', 'middle')
-      .attr('fill', '#94a3b8')
+      .attr('fill', '#445566')
       .attr('font-size', '11px')
       .attr('font-family', 'system-ui, sans-serif')
       .text('Loss');
@@ -205,7 +205,7 @@ export function LossCurveChart({ metrics, anomalies, selectedAnomaly, onAnomalyC
         .attr('cy', cy)
         .attr('r', isSelected ? 7 : 5)
         .attr('fill', color)
-        .attr('stroke', '#fff')
+        .attr('stroke', '#0f1623')
         .attr('stroke-width', isSelected ? 2.5 : 2)
         .attr('cursor', 'pointer')
         .on('click', () => onAnomalyClick(anomaly));
@@ -223,7 +223,7 @@ export function LossCurveChart({ metrics, anomalies, selectedAnomaly, onAnomalyC
     legend
       .append('text')
       .attr('x', 23).attr('y', 9)
-      .attr('fill', '#64748b')
+      .attr('fill', '#556070')
       .attr('font-size', '11px')
       .attr('font-family', 'system-ui, sans-serif')
       .text('Train loss');
@@ -238,7 +238,7 @@ export function LossCurveChart({ metrics, anomalies, selectedAnomaly, onAnomalyC
       legend
         .append('text')
         .attr('x', 23).attr('y', 26)
-        .attr('fill', '#64748b')
+        .attr('fill', '#556070')
         .attr('font-size', '11px')
         .attr('font-family', 'system-ui, sans-serif')
         .text('Val loss');

@@ -160,6 +160,54 @@ The `diagnosis` field always reflects the first anomaly in the `anomalies` array
 
 ---
 
+---
+
+## POST /api/ask
+
+Answers a follow-up question about an already-analyzed training run using Claude.
+
+### Purpose
+
+Enables contextual Q&A grounded in the run's training metrics, detected anomalies, and diagnosis. The full `AnalyzeResponse` is submitted alongside the question so the model answers only from available evidence.
+
+When `ANTHROPIC_API_KEY` is absent or the Claude call fails, the endpoint returns a descriptive fallback message rather than an error.
+
+### Request Body
+
+```json
+{
+  "question": "Why did the training run diverge?",
+  "analysis": {
+    "run_name": "resnet50_diverging_loss_demo",
+    "summary": { "total_steps": 6, "anomalies_detected": 1 },
+    "anomalies": [ { "...": "..." } ],
+    "diagnosis": { "...": "..." }
+  }
+}
+```
+
+`question` is a free-form string. `analysis` is the complete `AnalyzeResponse` object returned by `POST /api/analyze`.
+
+### Response Body
+
+```json
+{
+  "answer": "The training run diverged because..."
+}
+```
+
+### Fallback behavior
+
+When `ANTHROPIC_API_KEY` is not set or the Claude API call fails, the endpoint returns HTTP 200 with:
+
+```json
+{
+  "answer": "Follow-up Q&A requires Claude to be configured. Add ANTHROPIC_API_KEY to backend/.env and restart the server."
+}
+```
+
+---
+
 ## Error Handling
 
 Future API versions should return structured errors:

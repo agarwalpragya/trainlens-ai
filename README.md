@@ -26,10 +26,15 @@ TrainLens AI is a lightweight diagnostic layer for ML training runs. It accepts 
 
 - **5 anomaly detectors** — rule-based, deterministic, no model required
 - **Claude-powered diagnosis** — structured root-cause analysis via the Anthropic API; gracefully falls back to deterministic diagnosis when the API key is absent or the call fails
+- **Ask TrainLens Q&A** — follow-up question panel grounded in the run's metrics and diagnosis; Claude-powered with fallback
+- **JSON file upload** — upload your own training metrics JSON in the same format as the sample logs
 - **D3 loss curve** — train/validation loss chart with severity-colored anomaly markers
-- **Cross-highlighting** — click an anomaly card or chart marker to keep the selected anomaly in focus
+- **GPU utilization chart** — D3 chart with 50% underutilization threshold line and anomaly markers
+- **Memory utilization chart** — D3 area chart with 90% OOM risk threshold line and anomaly markers
+- **Cross-highlighting** — click an anomaly card or chart marker to keep the selected anomaly in focus across all charts
 - **Diagnosis panel** — headline, root cause, explanation, and numbered remediation steps
 - **Markdown postmortem export** — one-click download of a structured incident report
+- **Premium dark UI** — sticky header, mentor-style animated loading card, two-column layout with sticky Ask TrainLens sidebar
 - **Full type safety** — Pydantic models on the backend, TypeScript interfaces on the frontend
 
 ---
@@ -63,6 +68,9 @@ flowchart LR
     I --> K[Anomaly Cards]
     I --> L[Diagnosis Panel]
     I --> M[Markdown Export]
+    I --> N[Ask TrainLens Panel]
+    N --> O[POST /api/ask]
+    O --> F
 ```
 
 ---
@@ -213,7 +221,7 @@ cd backend
 uv run pytest -v
 ```
 
-29 tests covering all five detectors, edge cases, Claude fallback paths, and mock diagnosis correctness.
+34 tests covering all five detectors, edge cases, Claude diagnosis fallback paths, Ask TrainLens Q&A fallback paths, and deterministic diagnosis correctness.
 
 ### Frontend
 
@@ -233,7 +241,7 @@ TypeScript compilation + Vite production build. No test framework is wired up ye
 - No persistent storage; results exist only in the API response.
 - Only one anomaly per detector type is reported per run (first occurrence wins).
 - Claude diagnosis is based on the primary (first) anomaly only.
-- Frontend sample data is hardcoded; no file upload yet.
+- File upload accepts JSON only; raw `.log`, `.csv`, and TensorBoard formats are not supported yet.
 
 ---
 
@@ -243,12 +251,16 @@ TypeScript compilation + Vite production build. No test framework is wired up ye
 |---|---|
 | ✅ | FastAPI backend with 5 anomaly detectors |
 | ✅ | Claude-powered diagnosis with deterministic fallback |
+| ✅ | Ask TrainLens follow-up Q&A (POST /api/ask) |
 | ✅ | React + D3 dashboard |
 | ✅ | Markdown postmortem export |
-| ✅ | UI polish and responsive cleanup |
-| ⬜ | Frontend file upload for real training logs |
+| ✅ | Premium dark UI — sticky header, animated loading card, two-column layout |
 | ✅ | Screenshots in README |
 | ✅ | Demo GIF in README |
+| ✅ | Frontend JSON file upload |
+| ✅ | GPU utilization chart |
+| ✅ | Memory utilization chart |
+| ⬜ | Raw log / CSV parsing |
 | ⬜ | Frontend unit tests |
 | ⬜ | Deployed demo |
 

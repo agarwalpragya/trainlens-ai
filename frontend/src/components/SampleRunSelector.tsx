@@ -11,6 +11,9 @@ export function SampleRunSelector({ selectedKey, onChange, onAnalyze, loading }:
   return (
     <div className="card">
       <div className="card-title">Select a sample run</div>
+      <p className="selector-helper">
+        Choose a sample training run to diagnose. TrainLens will analyze it for anomalies and prepare an explanation.
+      </p>
       <div className="selector-row">
         <select
           value={selectedKey}
